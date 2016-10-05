@@ -4,13 +4,14 @@ const r = require('koa-router')()
 const path = require('path')
 const config = require('../config')
 const npm = require('../lib/npm')
+const logger = require('../winston')
 
 r.get('/:scope?/:name/-/:scope2?/:filename/:sha', function * () {
   let {scope, name, filename, sha} = this.params
   let key = path.join('tarballs', scope ? `${scope}/${name}` : name, filename, sha)
   let tarball = yield config.storage.stream(key)
   if (!tarball) {
-    console.log(`Loading ${key} from npm`)
+    logger.info(`Loading ${key} from npm`)
     try {
       tarball = yield npm.getTarball(scope ? `${scope}/${name}` : name, filename + path.extname(sha))
     } catch (err) {

@@ -3,11 +3,14 @@
 const r = require('koa-router')()
 const sendfile = require('koa-sendfile')
 const path = require('path')
+const config = require('../config')
 
-r.use(function * (next) {
-  this.opbeat.setTransactionName(this._matchedRoute, this.method)
-  yield next
-})
+if (config.opbeat){
+  r.use(function * (next) {
+    this.opbeat.setTransactionName(this._matchedRoute, this.method)
+    yield next
+  })
+}
 
 r.get('/', function * () {
   yield sendfile(this, path.join(__dirname, '../public/index.html'))

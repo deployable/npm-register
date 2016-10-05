@@ -1,17 +1,12 @@
-FROM alpine:3.4
+FROM mhart/alpine-node:6.7
 MAINTAINER Jeff Dickey <dickeyxxx@gmail.com>
 
 # Install NodeJS and node-gyp deps
-RUN apk --no-cache add \
+RUN http_proxy=http://10.8.8.8:3142 apk --no-cache add \
         g++ \
         gcc \
         make \
-        bash \
-        gnupg \
-        paxctl \
-        python \
-        nodejs \
-        linux-headers
+        python 
 
 # Create user and group
 RUN addgroup -S register \
@@ -24,11 +19,12 @@ RUN addgroup -S register \
 # Deploy application
 COPY . /srv/npm-register
 WORKDIR /srv/npm-register
-RUN npm install \
+RUN npm install --production \
     && chown -R register:register .
 
 # Share storage volume
 ENV NPM_REGISTER_FS_DIRECTORY /data
+RUN mkdir /data && chown register:register /data
 VOLUME /data
 
 # Start application

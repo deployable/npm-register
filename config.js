@@ -6,7 +6,7 @@ let env = process.env
 module.exports = {
   port: env.PORT || 3000,
   production: !!['production', 'staging'].find(e => e === env.NODE_ENV),
-  timeout: env.TIMEOUT || 10000,
+  timeout: parseInt(env.TIMEOUT) || 10000,
   uplink: url.parse(env.UPLINK || 'https://registry.npmjs.org'),
   redis: env.REDIS_URL,
   cloudfrontHost: env.CLOUDFRONT_HOST,
@@ -18,7 +18,8 @@ module.exports = {
   s3: {
     bucket: env.AWS_S3_BUCKET,
     region: env.AWS_DEFAULT_REGION
-  }
+  },
+  opbeat: ( env.OPBEAT === '0' || env.OPBEAT === 'false' || env.OPBEAT === 'no') ? false : true
 }
 
 let Storage = require('./lib/storage/' + (env.NPM_REGISTER_STORAGE || 'fs'))
