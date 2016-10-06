@@ -23,7 +23,8 @@ r.get('/:scope?/:name/-/:scope2?/:filename/:sha', function * () {
     })
     let timeout = new Promise(resolve => setTimeout(() => resolve('timeout'), config.timeout))
     if ((yield Promise.race([put, timeout])) === 'timeout') {
-      config.storage.delete(key)
+      console.info('Deleting key due to timeout', key)
+      config.storage.delete(key).catch(e => console.error('Timeout deletion error',e.stack,key))
       this.throw(504)
     }
     tarball = yield config.storage.stream(key)

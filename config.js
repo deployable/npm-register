@@ -2,6 +2,7 @@
 
 let url = require('url')
 let env = process.env
+const http = require('http')
 
 module.exports = {
   port: env.PORT || 3000,
@@ -18,8 +19,16 @@ module.exports = {
   s3: {
     bucket: env.AWS_S3_BUCKET,
     region: env.AWS_DEFAULT_REGION
-  }
+  },
+  httpAgent: env.HTTP_AGENT || false
 }
 
 let Storage = require('./lib/storage/' + (env.NPM_REGISTER_STORAGE || 'fs'))
 module.exports.storage = new Storage()
+
+if ( module.exports.httpAgent ) {
+  module.exports.httpAgent = new http.Agent({
+      keepAlive  : true,
+      maxSockets : 20
+  });
+}
