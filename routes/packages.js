@@ -5,6 +5,7 @@ const path = require('path')
 const url = require('url')
 const packages = require('../lib/packages')
 const config = require('../config')
+const logger = require('../winston')
 
 function addShaToPath (p, sha) {
   let ext = path.extname(p)
@@ -16,6 +17,11 @@ function addShaToPath (p, sha) {
 }
 
 function rewriteTarballURLs (pkg, host, protocol) {
+  if (!pkg.versions) {
+    let error = new Error('Problem with package data')
+    logger.error('Package is not the correct type',pkg,'should be a json object')
+    throw error
+  }
   for (let version of Object.keys(pkg.versions)) {
     let dist = pkg.versions[version].dist
     let u = url.parse(dist.tarball)
@@ -39,7 +45,13 @@ r.get('/:name', function * () {
     this.body = {error: 'no such package available'}
     return
   }
+  if (pkg === 400) {
+    this.status = 400
+    this.body = {error: 'Error retrieving package'}
+    return
+  }
   let cloudfront = this.headers['user-agent'] === 'Amazon CloudFront'
+  logger.debug('Type of package:', typeof pkg, this.params.name)
   rewriteTarballURLs(pkg, cloudfront ? config.cloudfrontHost : this.headers.host, this.request.protocol)
   this.set('ETag', pkg.etag)
   this.set('Cache-Control', `public, max-age=${config.cache.packageTTL}`)

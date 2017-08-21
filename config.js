@@ -20,7 +20,8 @@ module.exports = {
     bucket: env.AWS_S3_BUCKET,
     region: env.AWS_DEFAULT_REGION
   },
-  httpAgent: env.HTTP_AGENT || false
+  httpAgent: env.HTTP_AGENT || false,
+  logLevel: env.LOG_LEVEL || 'warn'
 }
 
 let Storage = require('./lib/storage/' + (env.NPM_REGISTER_STORAGE || 'fs'))
@@ -32,3 +33,4 @@ if ( module.exports.httpAgent ) {
       maxSockets : 20
   });
 }
+
